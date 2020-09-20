@@ -1,36 +1,35 @@
 package spendreport.tablesql;
 
-import org.apache.flink.api.java.DataSet;
-import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.TableEnvironment;
-import org.apache.flink.table.api.bridge.java.BatchTableEnvironment;
-import org.apache.flink.types.Row;
 
 /**
  * Author: Michael PK
  */
-public class JavaTableSQLAPI {
+public class BlinkTableSQLAPI {
 
     public static void main(String[] args) throws Exception {
 
 
-        ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
-        BatchTableEnvironment tableEnv = BatchTableEnvironment.create(env);
+        StreamExecutionEnvironment bsEnv = StreamExecutionEnvironment.getExecutionEnvironment();
+        EnvironmentSettings bsSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
+        StreamTableEnvironment bsTableEnv = StreamTableEnvironment.create(bsEnv, bsSettings);
 
-        String filePath = "file:///Users/rocky/IdeaProjects/imooc-workspace/data/06/sales.csv";
+        // ******************
+        // BLINK BATCH QUERY
+        // ******************
+//        EnvironmentSettings bbSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inBatchMode().build();
+//        TableEnvironment bbTableEnv = TableEnvironment.create(bbSettings);
 
-        DataSet<Sales> csv = env.readCsvFile(filePath)
-                .ignoreFirstLine()
-                .pojoType(Sales.class,"transactionId","customerId","itemId","amountPaid");
-        //csv.print();
+        // table is the result of a simple projection query
+        Table projTable = bsTableEnv.from("X").select("select 1 = 1");
 
-        Table sales = tableEnv.fromDataSet(csv);
-        tableEnv.registerTable("sales", sales);
-        Table resultTable = tableEnv.sqlQuery("select customerId, sum(amountPaid) money from sales group by customerId");
-
-        DataSet<Row> result = tableEnv.toDataSet(resultTable, Row.class);
-        result.print();
+// register the Table projTable as table "projectedTable"
+        bsTableEnv.createTemporaryView("projectedTable", projTable);
     }
 
     public static class Sales{

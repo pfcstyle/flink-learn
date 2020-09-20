@@ -1,9 +1,10 @@
-package com.imooc.flink.course06;
+package spendreport.tablesql;
 
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.java.BatchTableEnvironment;
+import org.apache.flink.table.api.TableEnvironment;
+import org.apache.flink.table.api.bridge.java.BatchTableEnvironment;
 import org.apache.flink.types.Row;
 
 /**
@@ -15,7 +16,7 @@ public class JavaTableSQLAPI {
 
 
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
-        BatchTableEnvironment tableEnv = BatchTableEnvironment.getTableEnvironment(env);
+        BatchTableEnvironment tableEnv = BatchTableEnvironment.create(env);
 
         String filePath = "file:///Users/rocky/IdeaProjects/imooc-workspace/data/06/sales.csv";
 
